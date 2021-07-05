@@ -1,0 +1,449 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[dvipsnames,svgnames,table]{xcolor}
+\usepackage{graphicx}
+\usepackage[nogin]{Sweave}  % to not use default width 0.80
+\colorlet{bg}{Aquamarine!18!Honeydew!82!}  % MintCream, Honeydew (svgnames)
+\colorlet{bgw}{PaleGoldenrod!30!Cornsilk!70!}  % MintCream, Honeydew (svgnames)
+\colorlet{c1}{ForestGreen}
+\colorlet{c2}{Chocolate}
+\colorlet{c3}{SteelBlue}
+\colorlet{c4}{DarkOrchid}
+\colorlet{c5}{DarkGoldenrod}
+\colorlet{c6}{DarkSlateGray}
+\usepackage{hyperref}
+%\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage[ruled,lined,nofillcomment]{algorithm2e}
+\addtolength{\oddsidemargin}{-.5in}%
+\addtolength{\textwidth}{1in}%
+
+\begin{document}
+
+\SweaveOpts{concordance=TRUE}
+\title{Mixed Radix System Algorithm (MIRSA) for Enumerative Combinatorics}
+\author{Inna Gerlovina$^{1}$}
+\maketitle
+
+\begin{footnotesize}
+ \noindent $^1$University of California, San Francisco
+\end{footnotesize}
+\begin{center}
+% {\small \texttt{innager@berkeley.edu}}
+\end{center}
+%\tableofcontents
+%\newpage
+
+\section{Introduction}
+
+Many problems that require traversing all combinations of a given type that satisfy a number of conditions and performing computations/manipulations on each combination can be conveniently framed in terms of \textbf{multisets}. A multiset $M$, which is a collection of elements that do not need to be distinct (unlike elements in a set), may be defined as a $2$-tuple $(A, m)$, where $A$ is some set of elements that includes those present in $M$ and $m:A \to \mathbb{Z}^{\geqslant}$ is a function from $A$ to the set of non-negative integers giving multiplicity of each element in $A$. Thus $A$ is a superset of the support of $M$ ($Supp(M)$ is a set of unique elements of $M$; $A \supseteq Supp(M)$). \\
+
+If a combination is represented by a multiset, all combinations that need to be enumerated can form a collection of multisets. Let $A$ be a finite set containing all the possible elements of the multisets in this collection; in addition, assign some arbitrary order to the elements of $A$. Then each multiset can be represented by a sequence of multiplicities of the ordered elements of $A$, i.e. the number of occurences of each element in a corresponding multiset. For a collection of multisets, these sequences are of the same length and their elements are finite non-negative integers. In turn, each sequence can be thought of as a representation of a \textbf{number} in some positional numeral system, with each element of the sequence being a single digit of that number (regardless of how many digits are used for that element in a, say, decimal numeral system). Then all the sequences in the collection can be translated into distinct numbers in the same numeral system. \\
+
+To account for all the combinations, it might be useful to impose some kind of ordering on them and, consequently, a rule prescribing how to move from one combination to the next. Ultimately, finding a rule that would allow one to efficiently traverse all the necessary combinations is the problem to solve. Since a combination can be represented by a single number, moving from that combination to the next can be as simple as incrementing or decrementing that number or, if there are constraints (e.g. a bound on a sum of the digits of the number), moving to the closest "allowed" number. Because different representations of a combination described above are bijective, the "next" number uniquely defines a combination in the collection. Figure \ref{fig:diag1} provides a diagram of how the chain of these representations can be used to move from a given combination to the next one. 
+
+\begin{figure}
+  \centering
+  \includegraphics[scale = 0.75]{diagram1a.pdf}
+  \caption{Progressing through combinations of some type by converting a combination to a number in some positional numeral system through a chain of different representations, incrementing that number, and converting it back to a combination of the same type.}
+  \label{fig:diag1}
+\end{figure}
+
+\subsection*{Positional numeral systems}
+
+A base, or \textbf{radix}, is the number of unique digits at each position: the smallest digit is $0$ and the greatest is radix minus $1$. 
+\begin{itemize}
+  \item Standard systems: fixed base - same base at each position (e.g. decimal system: base 10, binary system: base 2);
+  \item Non-standard systems: varying base - different bases are allowed at each position. Example: time measurement \\
+  
+  \begin{tabular}{ r || c | c | c | c | c | c |}
+    \hline
+    units & weeks & days & \multicolumn{2}{ c |}{hours} & minutes & seconds  \\
+    \hline
+    \rowcolor{bgw}    
+    radix & $\infty$ & 7 & \multicolumn{2}{ c |}{24} & 60 & 60               \\
+    \hline
+    \multicolumn{7}{c}{or}                                                    \\
+    \hline      
+    units & weeks & days & am/pm & hours & minutes & seconds                  \\    
+    \hline
+    \rowcolor{bgw}    
+    radix & $\infty$ & 7 & 2 & 12 & 60 & 60                                   \\
+    \hline
+  \end{tabular}
+\end{itemize} 
+
+\vspace{5mm}
+The number represented by a sequence of digits $(a_n, a_{n - 1}, \dotsc, a_1, a_0)$ (usually written as $a_n a_{n - 1} \dotsm a_1 a_0$) in a numeral system with radices $(b_n, b_{n - 1}, \dotsc, b_1, b_0)$, $0 < b_i < \infty \; \forall \; i$ is equal to $\displaystyle{a_0 + \sum_{i = 1}^n a_i \, \prod_{j = 1}^i b_j}$. 
+
+\subsection*{Incrementing}
+
+Incrementing a number in a \textbf{mixed radix} system can follow the same principal as in standard systems: going from right to left, find the first position that can be incremented, add $1$, and set all the positions to the right of that position to $0$: 
+\begin{center}
+  \includegraphics[scale = 0.52]{incr2.pdf} 
+\end{center}
+
+The star in the top figure (representing $x$) indicates the position to be incremented. Note that having positions with base $1$ can be useful in some situations. The digital representation of $x$ and $x + 1$ in the same mixed radix numeral system are below (in decimal system, their values are $7,917,695$ and $7,917,696$): 
+\begin{center}
+  \includegraphics[scale = 0.52]{incr3b.pdf}
+\end{center}
+\vspace{2mm} 
+
+Adding constraints such as the maximum cardinality of the multiset to this incrementing process, we can outline a simple and intuitive algorithm that can efficiently solve a surprising number of problems. Some examples we demonstrate are:
+\begin{itemize}
+  \item Generate all the collections of non-unique elements of a given size $n$ from a set $A$ of their unique elements (all the multisets $M_l$ such that $|M_l| = n$ and $Supp(M_l) = A$);
+  \item Find all the sub-collections of a given collection $B$ with a cardinality constraint $n$ (all the multisets $M_l$ such that $M_l \subseteq B$ and $|M_l| \leqslant n$);
+  \item Find all the binary sequences with elements in $\{0, 1\}$ of length $k$ where the number of $1$'s does not exceed $n$; 
+  \item Enumerate all the collections of elements whose sum is equal to a given number $n$.
+\end{itemize}
+
+\section{Algorithm}
+\subsection{Main constraint}
+
+Let $\boldsymbol{b} = (b_1, \dotsc, b_k)$ be radices, $\boldsymbol{m} = (m_1, \dotsc, m_k)$ be the digits (values) at each position, $S_{max}$ - the maximum sum, $\sum_{i = 1}^{k} m_i \leqslant S_{max}$, and $\boldsymbol{d}_{max} = (d_{max, 1}, \dotsc, d_{max, k})$ - largest possible digits (maximum values) at each position, $d_{max, i} = b_i - 1$. Let $\boldsymbol{m}_{lim}$ be the last sequence to be generated, representing the greatest number satisfying the maximum sum condition (e.g. for $\boldsymbol{d}_{max} = (3, 5, 4, 7)$ and $S_{max} = 9$, $\boldsymbol{m}_{lim} = c(3, 5, 1, 0)$). \\ 
+
+\begin{algorithm}[H]
+  \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+
+  \Input{An integer $S_{max}$, \\
+         an integer $k$,       \\
+         a sequence $d_{max} = (d_{max, 1}, \dotsc, d_{max, k})$ of integers, \\
+         a function $f_{lim}(S, k, d)$\tcp*{to calculate $m_{lim}$}}
+  \Output{A list $C$ of sequences satisfying $S_{max}$ condition}
+  \BlankLine
+  $m_{lim} \gets f_{lim}(S_{max}, k, d_{max})$\;
+  $S \gets 0$\;
+  $m \gets k$-tuple $(0, ..., 0)$\;
+  $C \gets \{m\}$\tcp*{list of length $1$}
+  $i \gets k$\;
+  \While{$m \neq m_{lim}$}{
+    \eIf{$m_i = d_{max, i}\; \lor \; S = S_{max}$} {
+      $S \gets S - m_i$\;
+      $m_i \gets 0$\;
+      $i \gets i - 1$\;
+    }{
+      $m_i \gets m_i + 1$\;
+      $S \gets S + 1$\;
+      $i \gets k$\;
+      append $\{m\}$ to $C$\;%\tcp*{OR}
+%      $C \gets C \cup \{m\}$\tcp*{note $C \cap \{m\} = \varnothing$} 
+    }
+  }
+  \Return{$C$}  
+  \caption{MIRSA, main version}
+\end{algorithm}  
+
+\subsection{Versions and modifications} \label{sec:mod}
+
+In addition to specifying $d_{max, i}$ for each position, it might be useful for some problems to specify $d_{min, i}$ instead of using $0$ as the smallest value. The simplest example would be to generate multisets with the same support, where $m(a_i) > 0 \; \forall \, i$; in other examples varying $d_{min, i}$ from position to position might be needed. The straightforward solution in that case would be to run the algorithm with a new sequence $\boldsymbol{d}'_{max}$, where $d'_{max, i} = d_{max, i} - d_{min, i} \; \forall \; i$, and $S'_{max} = S_{max} - \sum_{i = 1}^k d_{min, i}$, then add $d_{min, i}$ to $m_i$ for each $i$ in all resulting multisets. Alternatively, it might be a little more efficient to rewrite the algorithm substituting $d_{min, i}$ for $0$'s and calculating the "largest number" taking $\boldsymbol{d}_{min}$ into account. \\
+
+Another possible version could have a constraint $W_{max}$, such that $\sum_{i = 1}^n a_i \leqslant W_{max}$ instead of $S_{max}$ (a sum of all elements in a multiset instead of its cardinality). In this case, $a_i$'s could be thought of as weights for each position and then the condition can be rewritten as $\sum_{i = 1}^l m_i a_i \leqslant W_{max}$. \\
+
+\begin{algorithm}[H]
+  \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+  
+  \Input{An integer $W_{max}$.}
+  \Output{A collection $C$ of sequences satisfying $W_{max}$ condition.}
+  \BlankLine
+  $k \gets W_{max} - 1$\;
+  $S \gets 0$\;
+  $m \gets k$-tuple $(0, ..., 0)$\;  
+  $C \gets \{m\}$\;
+  $i \gets k$\;
+  \While{$m_1 = 0$}{
+    $w \gets W_{max} - i + 1$\tcc*{weight of the position}
+    \eIf{$S + w > W_{max}$} {
+      $S \gets S - wm_i$\;
+      $m_i \gets 0$\;
+      $i \gets i - 1$\;
+    }{
+      $m_i \gets m_i + 1$\;
+      $S \gets S + w$\;
+      $i \gets k$\;
+      append $\{m\}$ to $C$\;      
+    }
+  }
+  \Return{$C$}  
+  \caption{Weighted sum version}
+\end{algorithm}  
+
+\vspace{5mm}
+Using MIRSA for this particular problem is not necessarily the most efficient way to traverse the combinations but it has an advantage of being simple and easy to use in an "if you are stranded on a deserted island without any resources and need to do eigen decomposition" kind of situation. 
+
+\section{Example Problems}
+
+<<echo = FALSE>>=
+source("mirsa.R")
+@
+
+\subsection{Multisets of given cardinality and support}
+
+Generate all multisets $M_l$ of cardinality $n$ with $Supp(M_l) = A$, where $A$ is a given set: $|M_l| = n \, \forall \, l$; if $x \in A$, then $x \in M_l$; if $|A| > n$, $\mathbb{M} = \varnothing$ (see Table \ref{tab:ex1} for an example). A problem like this can arise, for example, when a multiset of a known cardinality that we are interested in is unobserved and only the set of its unique elements is observed. \\
+
+\begin{table}
+  \centering
+  \begin{tabular}{| c | c | c |}
+    \hline
+    \rowcolor{bg} set $A$ & multiset $M_l$ & multiplicities of $M_l$          \\
+    \hline
+    \multirow{6}{*}{$\{{\color{c1}a_1}, \, {\color{c2}a_2}, \, 
+                       {\color{c3}a_3}\}$} 
+    & $\{{\color{c1}a_1}, \, {\color{c1}a_1}, \, {\color{c1}a_1}, \, 
+         {\color{c2}a_2}, \, {\color{c3}a_3}\}$ 
+    & ${\color{c1}3} \;\;\; {\color{c2}1} \;\;\; {\color{c3}1}$               \\
+    & $\{{\color{c1}a_1}, \, {\color{c1}a_1}, \, {\color{c2}a_2}, \,
+         {\color{c2}a_2}, \, {\color{c3}a_3}\}$ 
+    & ${\color{c1}2} \;\;\; {\color{c2}2} \;\;\; {\color{c3}1}$               \\         & $\{{\color{c1}a_1}, \, {\color{c1}a_1}, \, {\color{c2}a_2}, \, 
+         {\color{c3}a_3}, \, {\color{c3}a_3}\}$ 
+    & ${\color{c1}2} \;\;\; {\color{c2}1} \;\;\; {\color{c3}2}$               \\         & $\{{\color{c1}a_1}, \, {\color{c2}a_2}, \, {\color{c2}a_2}, \, 
+         {\color{c2}a_2}, \, {\color{c3}a_3}\}$ 
+    & ${\color{c1}1} \;\;\; {\color{c2}3} \;\;\; {\color{c3}1}$               \\
+    & $\{{\color{c1}a_1}, \, {\color{c2}a_2}, \, {\color{c2}a_2}, \, 
+         {\color{c3}a_3}, \, {\color{c3}a_3}\}$ 
+    & ${\color{c1}1} \;\;\; {\color{c2}2} \;\;\; {\color{c3}2}$               \\
+    & $\{{\color{c1}a_1}, \, {\color{c2}a_2}, \, {\color{c3}a_3}, \, 
+         {\color{c3}a_3}, \, {\color{c3}a_3}\}$ 
+    & ${\color{c1}1} \;\;\; {\color{c2}1} \;\;\; {\color{c3}3}$               \\    
+    \hline
+  \end{tabular}
+  \caption{Multisets of support $A$, $|A|$ = 3, and cardinality 5.}
+  \label{tab:ex1}
+\end{table}  
+
+The number of multisets satisfying these conditions is called a multiset coefficient (or multiset number); it is a function of $n$ and $k \equiv |A|$ and is equal to $\binom{n - 1}{k - 1}$. It can also be defined recursively:
+\begin{align*}
+  f(0, y) &= 1 \; \forall \; y \in \mathbb{Z}^{\geqslant} \\
+  f(x, 0) &= 0 \; \forall \; x \in \mathbb{Z}^{>} \\
+  f(x, y) &= f(x - 1, y) + f(x, y - 1)
+\end{align*}
+Then the multiset coefficient is equal to $f(k - 1, n - k + 1)$. 
+
+<<>>=
+mcoef <- function(x, y) {
+  if (x == 0) return(1)
+  res <- 0
+  for (yi in y:1) {                     # y:1 for clarity
+    res <- res + mcoef(x - 1, yi)
+  }
+  return(res)
+}
+n <- 12
+k <- 6
+choose(n - 1, k - 1)
+mcoef(k - 1, n - k + 1)
+@
+
+The algorithm outputs multisets of cardinality less than or equal to a given number, so to get the multisets of the given cardinality only, we run the algorithm with one less position ($k' = k - 1$) and set $d_{min, i} = 1 \, \forall \, i$. Note that for this problem, the base is the same for all the positions and is equal to $n - k + 1$. The output is a matrix, in which each multiset $M_l$ is represented by a column with multiplicities of elements of $A$ (the third column in Table \ref{tab:ex1}). Below we generate multisets for $n = 8$ and $k = 4$; the last row is added after running MIRSA to bring the cardinality of each multiset to $n$: $\sum_{i = 1}^k m_i = n$.
+
+<<>>=
+n <- 8
+k <- 4
+vmat <- mirsa(rep(n - k, k - 1), summax = n - k) + 1
+rbind(vmat, n - colSums(vmat))
+@
+
+\subsection{Multisets $M_l \subseteq B$, $|M_l| \leqslant n$}
+
+Given a multiset $B$ and a number $n$, we want to find all multisets that are included in $B$: $\forall \, x \in A, \, m_{M_l}(x) \leqslant m_B(x)$ of cardinality $|M_l| \leqslant n$ (Table \ref{tab:ex2}). \\
+
+\begin{table}
+  \centering
+  \begin{tabular}{| c | l | l | c |}
+    \hline
+    \rowcolor{bg} 
+      set $B$ & $M_l \subseteq B$, $|M_l| \leqslant |B|$ & 
+                $M_l \subseteq B$, $|M_l| \leqslant 2$   & 
+                multiplicities of $M_l$                                       \\
+    \hline
+    \multirow{6}{*}{$\{{\color{c1} a_1}, \, {\color{c1} a_1}, \, 
+                       {\color{c2} a_2}\}$} 
+    & $\varnothing$ & $\varnothing$ & ${\color{c1}0} \;\;\; {\color{c2}0}$    \\         & $\{\color{c1}a_1\}$ & $\{\color{c1}a_1\}$ 
+    & ${\color{c1}1} \;\;\; {\color{c2}0}$                                    \\ 
+    & $\{{\color{c2}a_2}\}$, & $\{{\color{c2}a_2}\}$, 
+    & ${\color{c1}0} \;\;\; {\color{c2}1}$                                    \\ 
+    & $\{{\color{c1}a_1}, \, {\color{c1}a_1}\}$  
+    & $\{{\color{c1}a_1}, \, {\color{c1}a_1}\}$  
+    & ${\color{c1}2} \;\;\; {\color{c2}0}$                                    \\           & $\{{\color{c1}a_1}, \, {\color{c2}a_2}\}$  
+    & $\{{\color{c1}a_1}, \, {\color{c2}a_2}\}$ 
+    & ${\color{c1} 1} \;\;\; {\color{c2} 1}$                                  \\  
+    \cline{3-4}          
+    & $\{{\color{c1}a_1}, \, {\color{c1}a_1}, \, {\color{c2}a_2}\}$ 
+    & \cellcolor{Gainsboro} 
+    & \cellcolor{Gainsboro}{\color{c1}2}$\;\;\;${\color{c2}1}                 \\
+    \hline    
+  \end{tabular}
+  \caption{Multisets included in a multiset $B$ of different conditions on cardinality.}
+  \label{tab:ex2}
+\end{table}  
+
+First, consider the case when $n = |B|$, which means it's a simple case of incrementing without any constrains. The number of such multisets is $\prod_{i = 1}^k b_i$ and the output is all the multisets included in $B$ (in Table \ref{tab:ex2} example, $b_1 = 3$ and $b_2 = 2$). If $n < |B|$, some "numbers" will be skipped, which is handled by one of the conditions in the loop; the number of multisets can be calculated by summing up the numbers for all cardinalities up to $n$. 
+      
+<<>>=
+# multiplicities for B
+mB <- c(2, 4, 1)
+mirsa(mB)                # no constraints
+mirsa(mB, summax = 5)
+@
+
+\subsection{Binary sequences with a bound on the sum}   
+
+Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1}^k a_i \leqslant n$ (Table \ref{tab:ex3}). The solution of course is equivalent to generating combinations of $l$ out of $k$ elements, $l \leqslant n$ with the corresponding number of such sequences equal to $\binom{k}{0} + \binom{k}{1} + \dotsb + \binom{k}{n}$. MIRSA, however, might provide a more efficient solution, which is as simple as incrementing in binary numeral system but with an optional constraint on the sum.
+
+\begin{table}
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    \rowcolor{bg}
+      \multicolumn{16}{|c|}{sequence} \\
+    \rowcolor{bg}
+      \multicolumn{1}{|c}{1} & \multicolumn{1}{c}{2}  & \multicolumn{1}{c}{3} &
+      \multicolumn{1}{c}{4}  & \multicolumn{1}{c}{5}  & \multicolumn{1}{c}{6} &
+      \multicolumn{1}{c}{7}  & \multicolumn{1}{c}{8}  & \multicolumn{1}{c}{9} &
+      \multicolumn{1}{c}{10} & \multicolumn{1}{c}{11} & \multicolumn{1}{c}{12} &
+      \multicolumn{1}{c}{13} & \multicolumn{1}{c}{14} & \multicolumn{1}{c}{15} &
+      16 \\
+     \hline  
+    0 & 1 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 1 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 0 & 1 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 0 & 1 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 1 \\
+    \hline
+  \end{tabular}
+  \caption{Binary sequences of length $5$ and sum no greater than $2$.}
+  \label{tab:ex3}
+\end{table}  
+  
+<<>>=
+n <- 3
+k <- 5
+sum(choose(k, 0:n))  # number of multisets
+mirsa(rep(1, k), n)
+@
+
+\subsection{Multisets specified by the sum of their elements}
+
+Generate all multisets $M_l$, for which the sum of their elements equals $n$. Cardinality of these multisets will range from $1$ (a multiset $\{n\}$) to $n$ (all elements equal to $1$). This problem can be solved with a version of MIRSA that uses weights (Section \ref{sec:mod}). Table \ref{tab:ex4} illustrates the case with $n = 6$: on the left, there are exact multisets we want to get, on the right - their multiplicities along with the weight for each position, so that the sum of the elements is obtained by summing up products of multiplicities and their corresponding weights ($\sum_{i = 1}^n m_i w_i$). To generate these multisets, we first remove the last position (rightmost column in Table \ref{tab:ex4}) as in Example 1 and then run the weighted version of the algorithm. The last position is consequently added to bring the sum to $n$. 
+
+\begin{table}
+  \centering
+  \begin{tabular}{|l|ccccc|c|}
+  \hline
+  \cellcolor{bg} & \multicolumn{6}{c|}{\cellcolor{bgw}position weights}       \\
+  \hhline{|>{\arrayrulecolor{bg}}->{\arrayrulecolor{black}}|------}
+  \multicolumn{1}{|c|}{\cellcolor{bg}multiset $M_l$} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{6}} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{5}} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{4}} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{3}} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{2}} & 
+  \cellcolor{bgw}\textbf{1}                                                   \\
+  \hhline{|>{\arrayrulecolor{bg}}|-|>{\arrayrulecolor{black}}|------}  
+  \cellcolor{bg} & \multicolumn{6}{c|}{\cellcolor{bg} multiplicities of $M_l$}\\
+  \hline
+  $\{{\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}, \; 
+     {\color{c1}1}, \; {\color{c1}1}\}$ & 
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}0 & 
+  \color{c1} 6                                                                \\
+  $\{{\color{c2}2}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}, \;  
+     {\color{c1}1}\}$ & 
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}1 & 
+  \color{c1}4                                                                 \\
+  $\{{\color{c2}2}, \; {\color{c2}2}, \; {\color{c1}1}, \; {\color{c1}1}\}$ &
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}2 & 
+  \color{c1}2                                                                 \\
+  $\{{\color{c2}2}, \; {\color{c2}2}, \; {\color{c2}2}\}$ &
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}3 & 
+  \color{c1}0                                                                 \\
+  $\{{\color{c3}3}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}\}$ &
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}1 & \color{c2}0 & 
+  \color{c1}3                                                                 \\
+  $\{{\color{c3}3}, \; {\color{c2}2}, \; {\color{c1}1}\}$ & 
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}1 & \color{c2}1 & 
+  \color{c1}1                                                                 \\
+  $\{{\color{c3}3}, \; {\color{c3}3}\}$ & 
+  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}2 & \color{c2}0 & 
+  \color{c1}0                                                                 \\
+  $\{{\color{c4}4}, \; {\color{c1}1}, \; {\color{c1}1}\}$ & 
+  \color{c6}0 & \color{c5}0 & \color{c4}1 & \color{c3}0 & \color{c2}0 & 
+  \color{c1}2                                                                 \\
+  $\{{\color{c4}4}, \; {\color{c2}2}\}$ & 
+  \color{c6}0 & \color{c5}0 & \color{c4}1 & \color{c3}0 & \color{c2}1 & 
+  \color{c1}0                                                                 \\
+  $\{{\color{c5}5}, \; {\color{c1}1}\}$ & 
+  \color{c6}0 & \color{c5}1 & \color{c4}0 & \color{c3}0 & \color{c2}0 & 
+  \color{c1}1                                                                 \\
+  $\{{\color{c6}6}\}$ & 
+  \color{c6}1 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}0 & 
+  \color{c1}0                                                                 \\  
+  \hline
+  \end{tabular}
+  \caption{Multisets, for which the sum of their elements is $6$.}
+  \label{tab:ex4}
+\end{table}  
+
+<<>>=
+# The output corresponds to the right side of the Table without the 
+# rightmost column (each column in the matrix is an analog of a row 
+# in the Table).
+n <- 8
+mirsaW(n)
+@
+
+\section{Conclusion}
+
+We showed just a few problems to demonstrate utility and efficiency of MIRSA approach. The first three examples are taken from the genetic distance method \textit{Dcifer} that estimates relatedness for polyclonal infections. The last problem appears, for example, in calculation of higher-order statistics. We welcome any feedback and would be happy to hear about other examples and to include them!
+
+\end{document}
+
+
+\iffalse
+\begin{table}
+  \centering
+  \begin{tabular}{| c | c |}
+    \hline
+    {\color{PineGreen} set $U$} & {\color{PineGreen} multisets $M_k$} \\
+    \hline
+    \multirow{6}{*}{$\{a_2, \, a_3, \, a_4\}$}
+                  & $\{a_2, \, a_2, \, a_2, \, a_3, \, a_4\}$ \\
+                  & $\{a_2, \, a_3, \, a_3, \, a_3, \, a_4\}$ \\
+                  & $\{a_2, \, a_3, \, a_4, \, a_4, \, a_4\}$ \\
+                  & $\{a_2, \, a_2, \, a_3, \, a_3, \, a_4\}$ \\
+                  & $\{a_2, \, a_2, \, a_3, \, a_4, \, a_4\}$ \\
+                  & $\{a_2, \, a_3, \, a_3, \, a_4, \, a_4\}$ \\
+    \hline
+  \end{tabular}
+  \caption{Something}
+  \label{tab:UtoS}
+\end{table} 
+
+\begin{table}
+  \centering
+  \begin{tabular}{| c | c | c |}
+    \hline
+    \rowcolor{bg} set $U$ & multisets $M_k$ & multiplicity  \\
+    \hline
+    \multirow{6}{*}{$\{{\color{c1}a_2}, \, {\color{c2}a_3}, \, 
+                       {\color{c3}a_4}\}$}
+                  & $\{{\color{c1}a_2}, \, {\color{c1}a_2}, \, {\color{c1}a_2}, 
+                        \, {\color{c2}a_3}, \, {\color{c3}a_4}\}$ 
+                  & ${\color{c1} 3}, \; {\color{c2} 1}, \; {\color{c3} 1}$    \\
+                  & $\{{\color{c1}a_2}, \, {\color{c1}a_2}, \, {\color{c2}a_3}, 
+                       \, {\color{c2}a_3}, \, {\color{c3}a_4}\}$ 
+                  & ${\color{c1} 2}, \; {\color{c2} 2}, \; {\color{c3} 1}$    \\                       & $\{{\color{c1}a_2}, \, {\color{c1}a_2}, \, {\color{c2}a_3}, 
+                       \, {\color{c3}a_4}, \, {\color{c3}a_4}\}$ 
+                  & ${\color{c1} 2}, \; {\color{c2} 1}, \; {\color{c3} 2}$    \\                       & $\{{\color{c1}a_2}, \, {\color{c2}a_3}, \, {\color{c2}a_3}, 
+                       \, {\color{c2}a_3}, \, {\color{c3}a_4}\}$ 
+                  & ${\color{c1} 1}, \; {\color{c2} 3}, \; {\color{c3} 1}$    \\
+                    & $\{{\color{c1}a_2}, \, {\color{c2}a_3}, \, {\color{c2}a_3}, 
+                       \, {\color{c3}a_4}, \, {\color{c3}a_4}\}$ 
+                  & ${\color{c1} 1}, \; {\color{c2} 2}, \; {\color{c3} 2}$    \\
+                  & $\{{\color{c1}a_2}, \, {\color{c2}a_3}, \, {\color{c3}a_4}, 
+                       \, {\color{c3}a_4}, \, {\color{c3}a_4}\}$ 
+                  & ${\color{c1} 1}, \; {\color{c2} 1}, \; {\color{c3} 3}$    \\       \hline
+  \end{tabular}
+  \caption{Something}
+  \label{tab:UtoS}
+\end{table}  
+\fi
