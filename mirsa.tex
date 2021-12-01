@@ -23,17 +23,17 @@
 
 \input{mirsa-concordance}
 \title{Mixed Radix System Algorithm (MIRSA) for Enumerative Combinatorics}
-\author{Inna Gerlovina$^{1}$}
+\author{Inna Gerlovina \\
+  {\footnotesize University of California, San Francisco}}
 \maketitle
 
-\begin{footnotesize}
- \noindent $^1$University of California, San Francisco
-\end{footnotesize}
+\iffalse
 \begin{center}
-% {\small \texttt{innager@berkeley.edu}}
+  {\small \texttt{innager@berkeley.edu}}
 \end{center}
-%\tableofcontents
-%\newpage
+\tableofcontents
+\newpage
+\fi
 
 \section{Introduction}
 
@@ -45,7 +45,7 @@ To account for all the combinations, it might be useful to impose some kind of o
 
 \begin{figure}
   \centering
-  \includegraphics[scale = 0.75]{diagram1a.pdf}
+  \includegraphics[scale = 0.81]{diagram1a.pdf}
   \caption{Progressing through combinations of some type by converting a combination to a number in some positional numeral system through a chain of different representations, incrementing that number, and converting it back to a combination of the same type.}
   \label{fig:diag1}
 \end{figure}
@@ -204,7 +204,7 @@ Generate all multisets $M_l$ of cardinality $n$ with $Supp(M_l) = A$, where $A$ 
     & ${\color{c1}1} \;\;\; {\color{c2}1} \;\;\; {\color{c3}3}$               \\    
     \hline
   \end{tabular}
-  \caption{Multisets of support $A$, $|A|$ = 3, and cardinality 5.}
+  \caption{Multisets of support $A$, $|A| = 3$, and cardinality $5$.}
   \label{tab:ex1}
 \end{table}  
 
@@ -278,9 +278,9 @@ Given a multiset $B$ and a number $n$, we want to find all multisets that are in
   \begin{tabular}{| c | l | l | c |}
     \hline
     \rowcolor{bg} 
-      set $B$ & $M_l \subseteq B$, $|M_l| \leqslant |B|$ & 
-                $M_l \subseteq B$, $|M_l| \leqslant 2$   & 
-                multiplicities of $M_l$                                       \\
+      multiset $B$ & $M_l \subseteq B$, $|M_l| \leqslant |B|$ & 
+                     $M_l \subseteq B$, $|M_l| \leqslant 2$   & 
+                     multiplicities of $M_l$                                  \\
     \hline
     \multirow{6}{*}{$\{{\color{c1} a_1}, \, {\color{c1} a_1}, \, 
                        {\color{c2} a_2}\}$} 
@@ -296,7 +296,7 @@ Given a multiset $B$ and a number $n$, we want to find all multisets that are in
     \cline{3-4}          
     & $\{{\color{c1}a_1}, \, {\color{c1}a_1}, \, {\color{c2}a_2}\}$ 
     & \cellcolor{Gainsboro} 
-    & \cellcolor{Gainsboro}{\color{c1}2}$\;\;\;${\color{c2}1}                 \\
+    & \cellcolor{Gainsboro}{${\color{c1}2} \;\;\; {\color{c2}1}$}             \\
     \hline    
   \end{tabular}
   \caption{Multisets included in a multiset $B$ of different conditions on cardinality.}
@@ -351,18 +351,25 @@ Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1
     \rowcolor{bg}
       \multicolumn{16}{|c|}{sequence} \\
     \rowcolor{bg}
-      \multicolumn{1}{|c}{1} & \multicolumn{1}{c}{2}  & \multicolumn{1}{c}{3} &
-      \multicolumn{1}{c}{4}  & \multicolumn{1}{c}{5}  & \multicolumn{1}{c}{6} &
-      \multicolumn{1}{c}{7}  & \multicolumn{1}{c}{8}  & \multicolumn{1}{c}{9} &
-      \multicolumn{1}{c}{10} & \multicolumn{1}{c}{11} & \multicolumn{1}{c}{12} &
-      \multicolumn{1}{c}{13} & \multicolumn{1}{c}{14} & \multicolumn{1}{c}{15} &
-      16 \\
+      \multicolumn{1}{|c}{$1$}  & \multicolumn{1}{c}{$2$} & 
+      \multicolumn{1}{ c}{$3$}  & \multicolumn{1}{c}{$4$} & 
+      \multicolumn{1}{ c}{$5$}  & \multicolumn{1}{c}{$6$} &
+      \multicolumn{1}{ c}{$7$}  & \multicolumn{1}{c}{$8$} & 
+      \multicolumn{1}{ c}{$9$}  & \multicolumn{1}{c}{$10$} & 
+      \multicolumn{1}{ c}{$11$} & \multicolumn{1}{c}{$12$} &
+      \multicolumn{1}{ c}{$13$} & \multicolumn{1}{c}{$14$} & 
+      \multicolumn{1}{ c}{$15$} & $16$ \\
      \hline  
-    0 & 1 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
-    0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 1 & 1 & 0 & 0 & 0 \\
-    0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 0 & 1 & 1 & 0 \\
-    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 0 & 1 \\
-    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 1 & 1 \\
+    $0$ & $1$ & $0$ & $0$ & $0$ & $0$ & $1$ & $1$ & $1$ & $1$ & $0$ & $0$ & $0$ 
+    & $0$ & $0$ & $0$ \\
+    $0$ & $0$ & $1$ & $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $0$ & $1$ & $1$ & $1$ 
+    & $0$ & $0$ & $0$ \\
+    $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $1$ & $0$ & $0$ 
+    & $1$ & $1$ & $0$ \\
+    $0$ & $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $1$ & $0$ 
+    & $1$ & $0$ & $1$ \\
+    $0$ & $0$ & $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $0$ & $1$ & $0$ & $0$ & $1$
+    & $0$ & $1$ & $1$ \\
     \hline
   \end{tabular}
   \caption{Binary sequences of length $5$ and sum no greater than $2$.}
@@ -399,7 +406,7 @@ Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1
 
 \subsection{Multisets specified by the sum of their elements}
 
-Generate all multisets $M_l$, for which the sum of their elements equals $n$. Cardinality of these multisets will range from $1$ (a multiset $\{n\}$) to $n$ (all elements equal to $1$). This problem can be solved with a version of MIRSA that uses weights (Section \ref{sec:mod}). Table \ref{tab:ex4} illustrates the case with $n = 6$: on the left, there are exact multisets we want to get, on the right - their multiplicities along with the weight for each position, so that the sum of the elements is obtained by summing up products of multiplicities and their corresponding weights ($\sum_{i = 1}^n m_i w_i$). To generate these multisets, we first remove the last position (rightmost column in Table \ref{tab:ex4}) as in Example 1 and then run the weighted version of the algorithm. The last position is consequently added to bring the sum to $n$. 
+Generate all multisets $M_l$ with elements $a_i \in \mathbb{N}$, for which the sum of their elements equals $n$. Cardinality of these multisets will range from $1$ (a multiset $\{n\}$) to $n$ (all elements equal to $1$). This problem can be solved with a version of MIRSA that uses weights (Section \ref{sec:mod}). Table \ref{tab:ex4} illustrates the case with $n = 6$: on the left, there are exact multisets we want to get, on the right - their multiplicities along with the weight for each position, so that the sum of the elements is obtained by summing up products of multiplicities and their corresponding weights ($\sum_{i = 1}^n m_i w_i$). To generate these multisets, we first remove the last position (rightmost column in Table \ref{tab:ex4}) as in Example 1 and then run the weighted version of the algorithm. The last position is consequently added to bring the sum to $n$. 
 
 \begin{table}
   \centering
@@ -408,50 +415,50 @@ Generate all multisets $M_l$, for which the sum of their elements equals $n$. Ca
   \cellcolor{bg} & \multicolumn{6}{c|}{\cellcolor{bgw}position weights}       \\
   \hhline{|>{\arrayrulecolor{bg}}->{\arrayrulecolor{black}}|------}
   \multicolumn{1}{|c|}{\cellcolor{bg}multiset $M_l$} & 
-  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{6}} & 
-  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{5}} & 
-  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{4}} & 
-  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{3}} & 
-  \multicolumn{1}{c|}{\cellcolor{bgw}\textbf{2}} & 
-  \cellcolor{bgw}\textbf{1}                                                   \\
+  \multicolumn{1}{c|}{\cellcolor{bgw}$\mathbf{6}$} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}$\mathbf{5}$} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}$\mathbf{4}$} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}$\mathbf{3}$} & 
+  \multicolumn{1}{c|}{\cellcolor{bgw}$\mathbf{2}$} & 
+  \cellcolor{bgw}$\mathbf{1}$                                                 \\
   \hhline{|>{\arrayrulecolor{bg}}|-|>{\arrayrulecolor{black}}|------}  
   \cellcolor{bg} & \multicolumn{6}{c|}{\cellcolor{bg} multiplicities of $M_l$}\\
   \hline
   $\{{\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}, \; 
-     {\color{c1}1}, \; {\color{c1}1}\}$ & 
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}0 & 
-  \color{c1} 6                                                                \\
+     {\color{c1}1}, \; {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$0$ 
+    & \color{c2}$0$ & \color{c1} 6                                            \\
   $\{{\color{c2}2}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}, \;  
-     {\color{c1}1}\}$ & 
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}1 & 
-  \color{c1}4                                                                 \\
-  $\{{\color{c2}2}, \; {\color{c2}2}, \; {\color{c1}1}, \; {\color{c1}1}\}$ &
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}2 & 
-  \color{c1}2                                                                 \\
-  $\{{\color{c2}2}, \; {\color{c2}2}, \; {\color{c2}2}\}$ &
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}3 & 
-  \color{c1}0                                                                 \\
-  $\{{\color{c3}3}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}\}$ &
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}1 & \color{c2}0 & 
-  \color{c1}3                                                                 \\
-  $\{{\color{c3}3}, \; {\color{c2}2}, \; {\color{c1}1}\}$ & 
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}1 & \color{c2}1 & 
-  \color{c1}1                                                                 \\
-  $\{{\color{c3}3}, \; {\color{c3}3}\}$ & 
-  \color{c6}0 & \color{c5}0 & \color{c4}0 & \color{c3}2 & \color{c2}0 & 
-  \color{c1}0                                                                 \\
-  $\{{\color{c4}4}, \; {\color{c1}1}, \; {\color{c1}1}\}$ & 
-  \color{c6}0 & \color{c5}0 & \color{c4}1 & \color{c3}0 & \color{c2}0 & 
-  \color{c1}2                                                                 \\
-  $\{{\color{c4}4}, \; {\color{c2}2}\}$ & 
-  \color{c6}0 & \color{c5}0 & \color{c4}1 & \color{c3}0 & \color{c2}1 & 
-  \color{c1}0                                                                 \\
-  $\{{\color{c5}5}, \; {\color{c1}1}\}$ & 
-  \color{c6}0 & \color{c5}1 & \color{c4}0 & \color{c3}0 & \color{c2}0 & 
-  \color{c1}1                                                                 \\
-  $\{{\color{c6}6}\}$ & 
-  \color{c6}1 & \color{c5}0 & \color{c4}0 & \color{c3}0 & \color{c2}0 & 
-  \color{c1}0                                                                 \\  
+     {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$0$ 
+    & \color{c2}$1$ & \color{c1}$4$                                           \\
+  $\{{\color{c2}2}, \; {\color{c2}2}, \; {\color{c1}1}, \; {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$0$ 
+    & \color{c2}$2$ & \color{c1}$2$                                           \\
+  $\{{\color{c2}2}, \; {\color{c2}2}, \; {\color{c2}2}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$0$ 
+    & \color{c2}$3$ & \color{c1}$0$                                           \\
+  $\{{\color{c3}3}, \; {\color{c1}1}, \; {\color{c1}1}, \; {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$1$ 
+    & \color{c2}$0$ & \color{c1}$3$                                           \\
+  $\{{\color{c3}3}, \; {\color{c2}2}, \; {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$1$ 
+    & \color{c2}$1$ & \color{c1}$1$                                           \\
+  $\{{\color{c3}3}, \; {\color{c3}3}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$2$ 
+    & \color{c2}$0$ & \color{c1}$0$                                           \\
+  $\{{\color{c4}4}, \; {\color{c1}1}, \; {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$1$ & \color{c3}$0$ 
+    & \color{c2}$0$ & \color{c1}$2$                                           \\
+  $\{{\color{c4}4}, \; {\color{c2}2}\}$ 
+    & \color{c6}$0$ & \color{c5}$0$ & \color{c4}$1$ & \color{c3}$0$ 
+    & \color{c2}$1$ & \color{c1}$0$                                           \\
+  $\{{\color{c5}5}, \; {\color{c1}1}\}$ 
+    & \color{c6}$0$ & \color{c5}$1$ & \color{c4}$0$ & \color{c3}$0$ 
+    & \color{c2}$0$ & \color{c1}$1$                                           \\
+  $\{{\color{c6}6}\}$ 
+    & \color{c6}$1$ & \color{c5}$0$ & \color{c4}$0$ & \color{c3}$0$ 
+    & \color{c2}$0$ & \color{c1}$0$                                           \\  
   \hline
   \end{tabular}
   \caption{Multisets, for which the sum of their elements is $6$.}
@@ -460,11 +467,11 @@ Generate all multisets $M_l$, for which the sum of their elements equals $n$. Ca
 
 \begin{Schunk}
 \begin{Sinput}
-> # The output corresponds to the right side of the Table without the 
-> # rightmost column (each column in the matrix is an analog of a row 
-> # in the Table).
+> # The output corresponds to the right side of the Table 
+> # (each column in the matrix is an analog of a row in the Table).
 > n <- 8
-> mirsaW(n)
+> vmat <- mirsaW(n)
+> rbind(vmat, n - colSums(vmat*n:2))
 \end{Sinput}
 \begin{Soutput}
      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
@@ -475,6 +482,7 @@ Generate all multisets $M_l$, for which the sum of their elements equals $n$. Ca
 [5,]    0    0    0    0    0    0    0    0    0     0     1     1     1     1
 [6,]    0    0    0    0    0    1    1    1    2     2     0     0     0     1
 [7,]    0    1    2    3    4    0    1    2    0     1     0     1     2     0
+[8,]    8    6    4    2    0    5    3    1    2     0     4     2     0     1
      [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22]
 [1,]     0     0     0     0     0     0     0     1
 [2,]     0     0     0     0     0     0     1     0
@@ -483,6 +491,7 @@ Generate all multisets $M_l$, for which the sum of their elements equals $n$. Ca
 [5,]     2     0     0     0     0     0     0     0
 [6,]     0     0     0     1     0     0     0     0
 [7,]     0     0     1     0     0     1     0     0
+[8,]     0     3     1     0     2     0     1     0
 \end{Soutput}
 \end{Schunk}
 
