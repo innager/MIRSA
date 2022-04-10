@@ -1,14 +1,16 @@
 #==============================================================================#
 #------------------------------------------------------------------------------#
-#                                  MIRSA functions                             #
+#                   Mixed radix system incrementing algorithm                  #
 #------------------------------------------------------------------------------#
 #==============================================================================#
 
-#' Mixed Radix System Algorithm for Combinatorics
+#' Mixed radix system algorithm 
+#' 
 #' @description Generates multiplicities for multisets using incrementing in
 #'   mixed radix numeral systems.
 #' @param dmax a vector of largest digits at each position
-#' @param summax an integer value for the maximum sum of multiplicities
+#' @param summax an integer value for the maximum sum of multiplicities (maximum
+#'   cardinality of a multiset)
 #' @return A matrix where each column represents a multiset by a sequence of its
 #'   multiplicities.
    
@@ -67,14 +69,16 @@ mirsa2 <- function(dmax, dmin = 0, summax = NULL) {
   return(vmat)
 }
 
-#' Weighted MIRSA
+#' Weighted version of the algorithm
 #'
 #' @inherit mirsa description return
 #' @param wsummax an integer value for the maximum weighted sum of
 #'   multiplicities
+#' @param eq a logical value. If \code{TRUE}, the weighted sum is equal to
+#'   \code{wsummax}; if \code{FALSE} - less than or equal to \code{wsummax}.
    
-mirsaW <- function(wsummax) {
-  k    <- wsummax - 1
+mirsaW <- function(wsummax, eq = FALSE) {
+  k    <- wsummax - eq
   v    <- rep(0, k)
   sumv <- 0
   vmat <- v
@@ -92,11 +96,15 @@ mirsaW <- function(wsummax) {
       vmat <- cbind(vmat, v)      
     }
   }
+  if (eq) {
+    vmat <- rbind(vmat, wsummax - colSums(vmat*wsummax:2))
+  }
   colnames(vmat) <- NULL
   return(vmat)
 }
 
-#' Limit sequence for MIRSA
+#' Limit sequence for \code{mirsa}
+#' 
 #' @description Calculate a sequence of multiplicities that corresponds to the
 #'   largest number in a given numeral system satisfying \code{summax}
 #'   condition.

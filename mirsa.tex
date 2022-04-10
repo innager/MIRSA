@@ -16,36 +16,31 @@
 \usepackage{multirow}
 \usepackage{hhline}
 \usepackage[ruled,lined,nofillcomment]{algorithm2e}
+\usepackage{hyperref}
+\usepackage{natbib}
 \addtolength{\oddsidemargin}{-.5in}%
 \addtolength{\textwidth}{1in}%
 
 \begin{document}
 
 \input{mirsa-concordance}
-\title{Mixed Radix System Algorithm (MIRSA) for Enumerative Combinatorics}
-\author{Inna Gerlovina \\
-  {\footnotesize University of California, San Francisco}}
+
+\title{Generating multisets with mixed radix incrementing algorithm}
+\author{Inna Gerlovina \thanks{University of California, San Francisco}}
+\date{}  
 \maketitle
 
-\iffalse
-\begin{center}
-  {\small \texttt{innager@berkeley.edu}}
-\end{center}
-\tableofcontents
-\newpage
-\fi
+\section{Concept}
 
-\section{Introduction}
+Many problems that require traversing all combinations of a given type that satisfy a number of conditions and performing computations/manipulations on each combination can be conveniently framed in terms of \textbf{multisets}. A multiset $M$, which is a collection of elements that do not need to be distinct (unlike elements in a set), may be defined as a $2$-tuple $(A, m)$, where $A$ is some set of elements that includes those present in $M$ and $m:A \to \mathbb{Z}^{\geqslant}$ is a function from $A$ to the set of non-negative integers giving multiplicity of each element in $A$. Thus $A$ is a superset of the support of $M$, where $Supp(M)$ is a set of unique elements of $M$; $A \supseteq Supp(M)$. \\
 
-Many problems that require traversing all combinations of a given type that satisfy a number of conditions and performing computations/manipulations on each combination can be conveniently framed in terms of \textbf{multisets}. A multiset $M$, which is a collection of elements that do not need to be distinct (unlike elements in a set), may be defined as a $2$-tuple $(A, m)$, where $A$ is some set of elements that includes those present in $M$ and $m:A \to \mathbb{Z}^{\geqslant}$ is a function from $A$ to the set of non-negative integers giving multiplicity of each element in $A$. Thus $A$ is a superset of the support of $M$ ($Supp(M)$ is a set of unique elements of $M$; $A \supseteq Supp(M)$). \\
-
-If a combination is represented by a multiset, all combinations that need to be enumerated can form a collection of multisets. Let $A$ be a finite set containing all the possible elements of the multisets in this collection; in addition, assign some arbitrary order to the elements of $A$. Then each multiset can be represented by a sequence of multiplicities of the ordered elements of $A$, i.e. the number of occurences of each element in a corresponding multiset. For a collection of multisets, these sequences are of the same length and their elements are finite non-negative integers. In turn, each sequence can be thought of as a representation of a \textbf{number} in some positional numeral system, with each element of the sequence being a single digit of that number (regardless of how many digits are used for that element in a, say, decimal numeral system). Then all the sequences in the collection can be translated into distinct numbers in the same numeral system. \\
+If a combination is represented by a multiset, all combinations that need to be enumerated can form a collection of multisets. Let $A$ be a finite set containing all the possible elements of the multisets in this collection; in addition, assign some arbitrary order to the elements of $A$. Then each multiset can be represented by a sequence of multiplicities of the ordered elements of $A$, i.e. the number of occurences of each element in a corresponding multiset. For a collection of multisets, these sequences are of the same length and their elements are finite non-negative integers. In turn, each sequence can be thought of as a representation of a \textbf{number} in some positional numeral system, with each element of the sequence being a single digit of that number (regardless of how many digits are used for that element in, for example, the decimal numeral system). Then all the sequences in the collection can be translated into distinct numbers in the same numeral system. \\
 
 To account for all the combinations, it might be useful to impose some kind of ordering on them and, consequently, a rule prescribing how to move from one combination to the next. Ultimately, finding a rule that would allow one to efficiently traverse all the necessary combinations is the problem to solve. Since a combination can be represented by a single number, moving from that combination to the next can be as simple as incrementing or decrementing that number or, if there are constraints (e.g. a bound on a sum of the digits of the number), moving to the closest "allowed" number. Because different representations of a combination described above are bijective, the "next" number uniquely defines a combination in the collection. Figure \ref{fig:diag1} provides a diagram of how the chain of these representations can be used to move from a given combination to the next one. 
 
 \begin{figure}
   \centering
-  \includegraphics[scale = 0.81]{diagram1a.pdf}
+  \includegraphics[scale = 0.81]{suppl/diagram1a.pdf}
   \caption{Progressing through combinations of some type by converting a combination to a number in some positional numeral system through a chain of different representations, incrementing that number, and converting it back to a combination of the same type.}
   \label{fig:diag1}
 \end{figure}
@@ -54,8 +49,8 @@ To account for all the combinations, it might be useful to impose some kind of o
 
 A base, or \textbf{radix}, is the number of unique digits at each position: the smallest digit is $0$ and the greatest is radix minus $1$. 
 \begin{itemize}
-  \item Standard systems: fixed base - same base at each position (e.g. decimal system: base 10, binary system: base 2);
-  \item Non-standard systems: varying base - different bases are allowed at each position. Example: time measurement \\
+  \item Standard systems: fixed base -- same base at each position (e.g. decimal system: base 10, binary system: base 2);
+  \item Non-standard systems: varying base -- different bases are allowed at each position. Example -- time measurement: \\
   
   \begin{tabular}{ r || c | c | c | c | c | c |}
     \hline
@@ -75,33 +70,35 @@ A base, or \textbf{radix}, is the number of unique digits at each position: the 
 \end{itemize} 
 
 \vspace{5mm}
-The number represented by a sequence of digits $(a_n, a_{n - 1}, \dotsc, a_1, a_0)$ (usually written as $a_n a_{n - 1} \dotsm a_1 a_0$) in a numeral system with radices $(b_n, b_{n - 1}, \dotsc, b_1, b_0)$, $0 < b_i < \infty \; \forall \; i$ is equal to $\displaystyle{a_0 + \sum_{i = 1}^n a_i \, \prod_{j = 1}^i b_j}$. 
+The number represented by a sequence of digits $(a_n, a_{n - 1}, \dotsc, a_1, a_0)$ (usually written as $a_n a_{n - 1} \dotsm a_1 a_0$) in a numeral system with radices $(b_n, b_{n - 1}, \dotsc, b_1, b_0)$, $0 < b_i < \infty \;\; \forall \; i$ is equal to $\displaystyle{a_0 + \sum_{i = 1}^n a_i \, \prod_{j = 1}^i b_j}$. 
 
 \subsection*{Incrementing}
 
 Incrementing a number in a \textbf{mixed radix} system can follow the same principal as in standard systems: going from right to left, find the first position that can be incremented, add $1$, and set all the positions to the right of that position to $0$: 
 \begin{center}
-  \includegraphics[scale = 0.52]{incr2.pdf} 
+  \includegraphics[scale = 0.52]{suppl/incr2.pdf} 
 \end{center}
 
 The star in the top figure (representing $x$) indicates the position to be incremented. Note that having positions with base $1$ can be useful in some situations. The digital representation of $x$ and $x + 1$ in the same mixed radix numeral system are below (in decimal system, their values are $7,917,695$ and $7,917,696$): 
 \begin{center}
-  \includegraphics[scale = 0.52]{incr3b.pdf}
+  \includegraphics[scale = 0.52]{suppl/incr3b.pdf}
 \end{center}
 \vspace{2mm} 
 
-Adding constraints such as the maximum cardinality of the multiset to this incrementing process, we can outline a simple and intuitive algorithm that can efficiently solve a surprising number of problems. Some examples we demonstrate are:
+\subsection*{Constraints}
+
+The incrementing procedure described above is outlined in \cite{knuth2011art} Algorithm M (Mixed-radix generation) for generating all $n$-tuples. By incorporating some constraints into that algorithm and adding modifications, we can efficiently solve a surpising number of problems. A very useful constraint would be an upper limit on cardinality of the multisets we want to generate; we might also want to set a lower non-zero bound on a digit at each position. A modification that includes position-associated weights could accomodate another set of problems. Here we extend this simple and intuitive algorithm to include the cardinality constraint, look at other possible extensions, and illustrate the utility of this approach with the following examples: 
 \begin{itemize}
   \item Generate all the collections of non-unique elements of a given size $n$ from a set $A$ of their unique elements (all the multisets $M_l$ such that $|M_l| = n$ and $Supp(M_l) = A$);
   \item Find all the sub-collections of a given collection $B$ with a cardinality constraint $n$ (all the multisets $M_l$ such that $M_l \subseteq B$ and $|M_l| \leqslant n$);
-  \item Find all the binary sequences with elements in $\{0, 1\}$ of length $k$ where the number of $1$'s does not exceed $n$; 
+  \item Find all the binary sequences with elements in $\{0, 1\}$ of length $k$ where the number of $1$'s does not exceed $n \leqslant k$; 
   \item Enumerate all the collections of elements whose sum is equal to a given number $n$.
 \end{itemize}
 
 \section{Algorithm}
 \subsection{Main constraint}
 
-Let $\boldsymbol{b} = (b_1, \dotsc, b_k)$ be radices, $\boldsymbol{m} = (m_1, \dotsc, m_k)$ be the digits (values) at each position, $S_{max}$ - the maximum sum, $\sum_{i = 1}^{k} m_i \leqslant S_{max}$, and $\boldsymbol{d}_{max} = (d_{max, 1}, \dotsc, d_{max, k})$ - largest possible digits (maximum values) at each position, $d_{max, i} = b_i - 1$. Let $\boldsymbol{m}_{lim}$ be the last sequence to be generated, representing the greatest number satisfying the maximum sum condition (e.g. for $\boldsymbol{d}_{max} = (3, 5, 4, 7)$ and $S_{max} = 9$, $\boldsymbol{m}_{lim} = c(3, 5, 1, 0)$). \\ 
+Let $\boldsymbol{b} = (b_1, \dotsc, b_k)$ be radices, $\boldsymbol{m} = (m_1, \dotsc, m_k)$ be the digits (values) at each position, $S_{max}$ -- the maximum sum, $\sum_{i = 1}^{k} m_i \leqslant S_{max}$, and $\boldsymbol{d}_{max} = (d_{max, 1}, \dotsc, d_{max, k})$ -- the largest possible digits (maximum values) at each position, $d_{max, i} = b_i - 1$. Let $\boldsymbol{m}_{lim}$ be the last sequence to be generated, representing the greatest number satisfying the maximum sum condition (e.g. for $\boldsymbol{d}_{max} = (3, 5, 4, 7)$ and $S_{max} = 9$, $\boldsymbol{m}_{lim} = c(3, 5, 1, 0)$). \\ 
 
 \begin{algorithm}[H]
   \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
@@ -131,28 +128,31 @@ Let $\boldsymbol{b} = (b_1, \dotsc, b_k)$ be radices, $\boldsymbol{m} = (m_1, \d
     }
   }
   \Return{$C$}  
-  \caption{MIRSA, main version}
+  \caption{Mixed radix incrementing, main version}
 \end{algorithm}  
+
+\vspace{5mm}
+Including a lower bound $S_{min}$ on the sum as a constraint would be very similar to incorporating an upper bound in the algorithm above. Instead of a sequence of zeros, the initial sequence $\boldsymbol{m}_{init}$ would represent the smallest number satisfying $S_{min}$ condition, e.g. for $\boldsymbol{d}_{max} = (3, 9, 1, 2)$ and $S_{min} = 5$, $\boldsymbol{m}_{init} = (0, 2, 1, 2)$. 
 
 \subsection{Versions and modifications} \label{sec:mod}
 
-In addition to specifying $d_{max, i}$ for each position, it might be useful for some problems to specify $d_{min, i}$ instead of using $0$ as the smallest value. The simplest example would be to generate multisets with the same support, where $m(a_i) > 0 \; \forall \, i$; in other examples varying $d_{min, i}$ from position to position might be needed. The straightforward solution in that case would be to run the algorithm with a new sequence $\boldsymbol{d}'_{max}$, where $d'_{max, i} = d_{max, i} - d_{min, i} \; \forall \; i$, and $S'_{max} = S_{max} - \sum_{i = 1}^k d_{min, i}$, then add $d_{min, i}$ to $m_i$ for each $i$ in all resulting multisets. Alternatively, it might be a little more efficient to rewrite the algorithm substituting $d_{min, i}$ for $0$'s and calculating the "largest number" taking $\boldsymbol{d}_{min}$ into account. \\
+In addition to specifying $d_{max, i}$ for each position, it might be useful for some problems to specify $d_{min, i}$ instead of using $0$ as the smallest value. The simplest example would be to generate multisets with the same support, where $m(a_i) > 0 \;\; \forall \, i$; in other examples varying $d_{min, i}$ from position to position might be needed. The straightforward solution in that case would be to run the algorithm with a new sequence $\boldsymbol{d}'_{max}$, where $d'_{max, i} = d_{max, i} - d_{min, i} \;\; \forall \; i$, and $S'_{max} = S_{max} - \sum_{i = 1}^k d_{min, i}$, then add $d_{min, i}$ to $m_i$ for each $i$ in all resulting multisets. Alternatively, it might be a little more efficient to rewrite the algorithm substituting $d_{min, i}$ for $0$'s and calculating the "largest number" taking $\boldsymbol{d}_{min}$ into account. \\
 
-Another possible version could have a constraint $W_{max}$, such that $\sum_{i = 1}^n a_i \leqslant W_{max}$ instead of $S_{max}$ (a sum of all elements in a multiset instead of its cardinality). In this case, $a_i$'s could be thought of as weights for each position and then the condition can be rewritten as $\sum_{i = 1}^l m_i a_i \leqslant W_{max}$. \\
+Another possible version could have a constraint $W_{max}$, such that $\sum_{i = 1}^n a_i \leqslant W_{max}$ instead of $S_{max}$ (a sum of all elements in a multiset instead of its cardinality). In this case, each position could be assigned a weight $w_i$ (e.g. $w_i = W_{max} - i + 1$) and the condition rewritten as $\sum_{i = 1}^l m_i w_i \leqslant W_{max}$. \\
 
-\begin{algorithm}[H]
+\begin{algorithm}[H]  \label{alg:mirsaW}
   \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
   
   \Input{An integer $W_{max}$.}
   \Output{A collection $C$ of sequences satisfying $W_{max}$ condition.}
   \BlankLine
-  $k \gets W_{max} - 1$\;
+  $k \gets W_{max}$\;
   $S \gets 0$\;
   $m \gets k$-tuple $(0, ..., 0)$\;  
   $C \gets \{m\}$\;
   $i \gets k$\;
   \While{$m_1 = 0$}{
-    $w \gets W_{max} - i + 1$\tcc*{weight of the position}
+    $w \gets W_{max} - i + 1$\tcp*{weight of the position}
     \eIf{$S + w > W_{max}$} {
       $S \gets S - wm_i$\;
       $m_i \gets 0$\;
@@ -165,18 +165,18 @@ Another possible version could have a constraint $W_{max}$, such that $\sum_{i =
     }
   }
   \Return{$C$}  
-  \caption{Weighted sum version}
+  \caption{Mixed radix incrementing, weighted sum version}
 \end{algorithm}  
 
 \vspace{5mm}
-Using MIRSA for this particular problem is not necessarily the most efficient way to traverse the combinations but it has an advantage of being simple and easy to use in an "if you are stranded on a deserted island without any resources and need to do eigen decomposition" kind of situation. 
+Using the mixed radix incrementing approach for this particular problem is not necessarily the most efficient way to traverse the combinations, but it has an advantage of being intuitive and easily constructed without any additional knowledge. 
 
 \section{Example Problems}
 
 
-\subsection{Multisets of given cardinality and support}
+\subsection{Multisets of given cardinality and support} \label{sec:ex1}
 
-Generate all multisets $M_l$ of cardinality $n$ with $Supp(M_l) = A$, where $A$ is a given set: $|M_l| = n \, \forall \, l$; if $x \in A$, then $x \in M_l$; if $|A| > n$, $\mathbb{M} = \varnothing$ (see Table \ref{tab:ex1} for an example). A problem like this can arise, for example, when a multiset of a known cardinality that we are interested in is unobserved and only the set of its unique elements is observed. \\
+Generate all multisets $M_l$ of cardinality $n$ with $Supp(M_l) = A$, where $A$ is a given set: $|M_l| = n \;\; \forall \, l$; if $x \in A$, then $x \in M_l$; if $|A| > n$, $\mathbb{M} = \varnothing$ (see Table \ref{tab:ex1} for an example). A problem like this can arise, for example, when a multiset of a known cardinality that we are interested in is unobserved and only the set of its unique elements is observed. \\
 
 \begin{table}
   \centering
@@ -210,8 +210,8 @@ Generate all multisets $M_l$ of cardinality $n$ with $Supp(M_l) = A$, where $A$ 
 
 The number of multisets satisfying these conditions is called a multiset coefficient (or multiset number); it is a function of $n$ and $k \equiv |A|$ and is equal to $\binom{n - 1}{k - 1}$. It can also be defined recursively:
 \begin{align*}
-  f(0, y) &= 1 \; \forall \; y \in \mathbb{Z}^{\geqslant} \\
-  f(x, 0) &= 0 \; \forall \; x \in \mathbb{Z}^{>} \\
+  f(0, y) &= 1 \;\; \forall \; y \in \mathbb{Z}^{\geqslant} \\
+  f(x, 0) &= 0 \;\; \forall \; x \in \mathbb{Z}^{>} \\
   f(x, y) &= f(x - 1, y) + f(x, y - 1)
 \end{align*}
 Then the multiset coefficient is equal to $f(k - 1, n - k + 1)$. 
@@ -241,12 +241,14 @@ Then the multiset coefficient is equal to $f(k - 1, n - k + 1)$.
 \end{Soutput}
 \end{Schunk}
 
-The algorithm outputs multisets of cardinality less than or equal to a given number, so to get the multisets of the given cardinality only, we run the algorithm with one less position ($k' = k - 1$) and set $d_{min, i} = 1 \, \forall \, i$. Note that for this problem, the base is the same for all the positions and is equal to $n - k + 1$. The output is a matrix, in which each multiset $M_l$ is represented by a column with multiplicities of elements of $A$ (the third column in Table \ref{tab:ex1}). Below we generate multisets for $n = 8$ and $k = 4$; the last row is added after running MIRSA to bring the cardinality of each multiset to $n$: $\sum_{i = 1}^k m_i = n$.
+The algorithm outputs multisets of cardinality less than or equal to a given number, so to get the multisets of the given cardinality only, we run the algorithm with one position removed ($k' = k - 1$) and set $d_{min, i} = 1 \;\; \forall \, i$. Note that for this problem, the base is the same for all the positions and is equal to $n - k + 1$. The output is a matrix, in which each multiset $M_l$ is represented by a column with multiplicities of elements of $A$ (the third column in Table \ref{tab:ex1}). Below we generate multisets for $n = 8$ and $k = 4$; the last row is added after running the algorithm to bring the cardinality of each multiset to $n$: $\sum_{i = 1}^k m_i = n$.
 
 \begin{Schunk}
 \begin{Sinput}
 > n <- 8
 > k <- 4
+> # The function mirsa() (MIxed Radix System Algorithm) runs 
+> # the main version of the algorithm 
 > vmat <- mirsa(rep(n - k, k - 1), summax = n - k) + 1
 > rbind(vmat, n - colSums(vmat))
 \end{Sinput}
@@ -303,13 +305,13 @@ Given a multiset $B$ and a number $n$, we want to find all multisets that are in
   \label{tab:ex2}
 \end{table}  
 
-First, consider the case when $n = |B|$, which means it's a simple case of incrementing without any constrains. The number of such multisets is $\prod_{i = 1}^k b_i$ and the output is all the multisets included in $B$ (in Table \ref{tab:ex2} example, $b_1 = 3$ and $b_2 = 2$). If $n < |B|$, some "numbers" will be skipped, which is handled by one of the conditions in the loop; the number of multisets can be calculated by summing up the numbers for all cardinalities up to $n$. 
+First, consider the case when $n = |B|$, which means it's a simple case of incrementing without any constrains. The number of such multisets is $\prod_{i = 1}^k b_i$ and the output is all the multisets included in $B$ (in Table \ref{tab:ex2} example, $b_1 = 3$ and $b_2 = 2$). If $n < |B|$, some "numbers" will be skipped, which is handled by one of the conditions in the loop; the number of multisets can be calculated by summing up the numbers for all cardinalities up to $n$. Below we generate multisets with $b_1 = 3$, $b_2 = 5$, and $b_3 = 2$ -- first with no bound on cardinality, and then with $S_{max} = 5$:
       
 \begin{Schunk}
 \begin{Sinput}
 > # multiplicities for B
 > mB <- c(2, 4, 1)
-> mirsa(mB)                # no constraints
+> mirsa(mB)                # no constraints: n = 7
 \end{Sinput}
 \begin{Soutput}
      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
@@ -326,7 +328,7 @@ First, consider the case when $n = |B|$, which means it's a simple case of incre
 [3,]     0     1     0     1
 \end{Soutput}
 \begin{Sinput}
-> mirsa(mB, summax = 5)
+> mirsa(mB, summax = 5)    # cardinality constraint: n = 5 
 \end{Sinput}
 \begin{Soutput}
      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
@@ -342,7 +344,7 @@ First, consider the case when $n = |B|$, which means it's a simple case of incre
 
 \subsection{Binary sequences with a bound on the sum}   
 
-Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1}^k a_i \leqslant n$ (Table \ref{tab:ex3}). The solution of course is equivalent to generating combinations of $l$ out of $k$ elements, $l \leqslant n$ with the corresponding number of such sequences equal to $\binom{k}{0} + \binom{k}{1} + \dotsb + \binom{k}{n}$. MIRSA, however, might provide a more efficient solution, which is as simple as incrementing in binary numeral system but with an optional constraint on the sum.
+Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1}^k a_i \leqslant n$ (Table \ref{tab:ex3}). The solution of course is equivalent to generating combinations of $l$ out of $k$ elements, $l \leqslant n$ with the corresponding number of such sequences equal to $\binom{k}{0} + \binom{k}{1} + \dotsb + \binom{k}{n}$. The mixed radix incrementing algorithm, however, might provide a more efficient solution, which in this case is as simple as incrementing in binary numeral system but with an optional constraint on the sum of the digits. \\ 
 
 \begin{table}
   \centering
@@ -376,10 +378,17 @@ Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1
   \label{tab:ex3}
 \end{table}  
   
+As an example, we generate binary sequences of length $5$ and the sum bounded by $3$: 
+
 \begin{Schunk}
 \begin{Sinput}
 > n <- 3
 > k <- 5
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
 > sum(choose(k, 0:n))  # number of multisets
 \end{Sinput}
 \begin{Soutput}
@@ -404,11 +413,11 @@ Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1
 \end{Soutput}
 \end{Schunk}
 
-\subsection{Multisets specified by the sum of their elements}
+\subsection{Multisets specified by the sum of their elements} \label{sec:ex4}
 
-Generate all multisets $M_l$ with elements $a_i \in \mathbb{N}$, for which the sum of their elements equals $n$. Cardinality of these multisets will range from $1$ (a multiset $\{n\}$) to $n$ (all elements equal to $1$). This problem can be solved with a version of MIRSA that uses weights (Section \ref{sec:mod}). Table \ref{tab:ex4} illustrates the case with $n = 6$: on the left, there are exact multisets we want to get, on the right - their multiplicities along with the weight for each position, so that the sum of the elements is obtained by summing up products of multiplicities and their corresponding weights ($\sum_{i = 1}^n m_i w_i$). To generate these multisets, we first remove the last position (rightmost column in Table \ref{tab:ex4}) as in Example 1 and then run the weighted version of the algorithm. The last position is consequently added to bring the sum to $n$. 
+Generate all multisets $M_l$ with elements $a_i \in \mathbb{N}$, for which the sum of their elements equals $s$. Cardinality of these multisets will range from $1$ (a multiset $\{s\}$) to $s$ (all elements equal to $1$). This problem can be solved with a version of the algorithm that uses weights (Section \ref{sec:mod}). Table \ref{tab:ex4} illustrates the case with $s = 6$: on the left, there are exact multisets we want to get, on the right - their multiplicities along with the weights for each position, so that the sum of the elements is obtained by summing up products of multiplicities and their corresponding weights ($\sum_{i = 1}^n m_i w_i$). Since in this case multisets need to satisfy a condition $\sum_{i = 1}^n m_i w_i = W_{max}$ (and not $\sum_{i = 1}^n m_i w_i \leqslant W_{max}$ as in Algorithm \ref{alg:mirsaW}), we run the algorithm without the last position (represented by the rightmost column in Table \ref{tab:ex4}), similarly to the Example \ref{sec:ex1}, but in this case keeping the original weights (so that $w_1 = k; \; \dotsc; \; w_{k - 1} = 2$). The last position is consequently added to bring the sum up to $s$. \\
 
-\begin{table}
+\begin{table}[!hb]
   \centering
   \begin{tabular}{|l|ccccc|c|}
   \hline
@@ -465,13 +474,16 @@ Generate all multisets $M_l$ with elements $a_i \in \mathbb{N}$, for which the s
   \label{tab:ex4}
 \end{table}  
 
+Here we generate multisets for $W_{max} = 8$:
+
 \begin{Schunk}
 \begin{Sinput}
-> # The output corresponds to the right side of the Table 
-> # (each column in the matrix is an analog of a row in the Table).
-> n <- 8
-> vmat <- mirsaW(n)
-> rbind(vmat, n - colSums(vmat*n:2))
+> # The output is represented by the right side of Table 4
+> # (each column in the matrix corresponds to a row in the Table).
+> s <- 8
+> # The function mirsaW() runs the weighted version of the algorithm 
+> # eq = TRUE specifies that the sum of the elements should be equal to s 
+> mirsaW(s, eq = TRUE)  
 \end{Sinput}
 \begin{Soutput}
      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13] [,14]
@@ -497,7 +509,10 @@ Generate all multisets $M_l$ with elements $a_i \in \mathbb{N}$, for which the s
 
 \section{Conclusion}
 
-We showed just a few problems to demonstrate utility and efficiency of MIRSA approach. The first three examples are taken from the genetic distance method \textit{Dcifer} that estimates relatedness for polyclonal infections. The last problem appears, for example, in calculation of higher-order statistics. We welcome any feedback and would be happy to hear about other examples and to include them!
+We showed just a few examples to demonstrate the utility and efficiency of the mixed radix incrementing approach. The algorithm is used for implementation of \textit{Dcifer}, a method for calculating genetic distance that estimates relatedness between polyclonal infections (the first three examples represent combinatorial problems that arise in \textit{Dcifer} likelihood calculation). The problem in \ref{sec:ex4} appears, for example, in calculation of higher-order statistics. When a problem can be framed in terms of generating all the possible multisets with some prescribed conditions, it may be solved with this unified approach and algorithm versions tailored to accommodate various kinds of constraints. 
+
+\bibliographystyle{plainnat}
+\bibliography{suppl/mirsa.bib}
 
 \end{document}
 

@@ -1,3 +1,3 @@
-# MIRSA
+# Generating multisets with mixed radix incrementing algorithm
 
-MIxed Radix System Algorithm for enumerative combinatorics.
+
