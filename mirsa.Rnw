@@ -11,7 +11,6 @@
 \colorlet{c4}{DarkOrchid}
 \colorlet{c5}{DarkGoldenrod}
 \colorlet{c6}{DarkSlateGray}
-\usepackage{hyperref}
 %\usepackage{colortbl}
 \usepackage{multirow}
 \usepackage{hhline}
@@ -79,7 +78,7 @@ Incrementing a number in a \textbf{mixed radix} system can follow the same princ
   \includegraphics[scale = 0.52]{suppl/incr2.pdf} 
 \end{center}
 
-The star in the top figure (representing $x$) indicates the position to be incremented. Note that having positions with base $1$ can be useful in some situations. The digital representation of $x$ and $x + 1$ in the same mixed radix numeral system are below (in decimal system, their values are $7,917,695$ and $7,917,696$): 
+The star in the top figure (representing $x$) indicates the position to be incremented. Note that having positions with base $1$ can be useful in some situations. The digital representations of $x$ and $x + 1$ in the same mixed radix numeral system are below (in decimal system, their values are $7,917,695$ and $7,917,696$): 
 \begin{center}
   \includegraphics[scale = 0.52]{suppl/incr3b.pdf}
 \end{center}
@@ -239,8 +238,8 @@ The algorithm outputs multisets of cardinality less than or equal to a given num
 <<>>=
 n <- 8
 k <- 4
-# The function mirsa() (MIxed Radix System Algorithm) runs 
-# the main version of the algorithm 
+# Function mirsa() (MIxed Radix System Algorithm) runs the main version 
+# of the algorithm 
 vmat <- mirsa(rep(n - k, k - 1), summax = n - k) + 1
 rbind(vmat, n - colSums(vmat))
 @
@@ -403,16 +402,17 @@ Here we generate multisets for $W_{max} = 8$:
 # The output is represented by the right side of Table 4
 # (each column in the matrix corresponds to a row in the Table).
 s <- 8
-# The function mirsaW() runs the weighted version of the algorithm 
+# Function mirsaW() runs the weighted version of the algorithm 
 # eq = TRUE specifies that the sum of the elements should be equal to s 
 mirsaW(s, eq = TRUE)  
 @
 
 \section{Conclusion}
 
-We showed just a few examples to demonstrate the utility and efficiency of the mixed radix incrementing approach. The algorithm is used for implementation of \textit{Dcifer}, a method for calculating genetic distance that estimates relatedness between polyclonal infections (the first three examples represent combinatorial problems that arise in \textit{Dcifer} likelihood calculation). The problem in \ref{sec:ex4} appears, for example, in calculation of higher-order statistics. When a problem can be framed in terms of generating all the possible multisets with some prescribed conditions, it may be solved with this unified approach and algorithm versions tailored to accommodate various kinds of constraints. 
+We showed just a few examples to demonstrate the utility and efficiency of the mixed radix incrementing approach. The algorithm is used for implementation of Dcifer (\cite{gerlovina2022dcifer}), a method for calculating genetic distance that estimates relatedness between polyclonal infections (the first three examples represent combinatorial problems that arise in Dcifer likelihood calculation). The problem in \ref{sec:ex4} appears, for example, in calculation of higher-order statistics. When a problem can be framed in terms of generating all the possible multisets with some prescribed conditions, it may be solved with this unified approach and algorithm versions tailored to accommodate various kinds of constraints. 
 
 \bibliographystyle{plainnat}
+%\bibliographystyle{unsrt}
 \bibliography{suppl/mirsa.bib}
 
 \end{document}
