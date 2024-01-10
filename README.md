@@ -1,9 +1,3 @@
-# Mixed radix incrementing algorithm
-
-Many problems that require traversing all combinations of a given type that satisfy a number of conditions can be approached with a concept of going through numbers in some mixed radix numeral system. Incrementing (or decrementing) these numbers, subject to constraints, would then provide a simple, intuitive, and efficient way to generate all required combinations. 
-
-For various versions of the algorithm, detailed description of the concept, and example problems, see mirsa.pdf. 
-
 <h1 style="text-align: center;">
 Combinatorics with MIRSA 
 </h1>
@@ -34,7 +28,7 @@ The number represented by a sequence of digits $(a_n, a_{n - 1}, \dotsc, a_1, a_
 
 ### Incrementing
 
-Incrementing a number in a \textbf{mixed radix} system can follow the same principal as in standard systems: going from right to left, find the first position that can be incremented, add $1$, and set all the positions to the right of that position to $0$:
+Incrementing a number in a __mixed radix__ system can follow the same principal as in standard systems: going from right to left, find the first position that can be incremented, add $1$, and set all the positions to the right of that position to $0$:
 
 <p align="center">
 <img src="suppl/incr2.png" alt="" width=650>
@@ -58,6 +52,7 @@ The incrementing procedure described above is outlined in \cite{knuth2011art} Al
 
 </br>
 
-##### For various versions of the algorithm and example problems, see __mirsa.pdf__. 
+#### <span style="color:gray">For various versions of the algorithm and example problems, see __mirsa.pdf__</span>. 
+
 
 
