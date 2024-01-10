@@ -1,9 +1,8 @@
-<h1 style="text-align: center;">
-Combinatorics with MIRSA 
-</h1>
-<h2 style="text-align: center;">
-Generating multisets with mixed radix incrementing algorithm
-</h2>
+
+<p align="center">
+# Combinatorics with MIRSA 
+## Generating multisets with mixed radix incrementing algorithm
+<p align="center">
 
 </br>
 
