@@ -1,7 +1,9 @@
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
+\usepackage{authblk}
 \usepackage{amsmath,amssymb}
 \usepackage[dvipsnames,svgnames,table]{xcolor}
 \usepackage{graphicx}
+\usepackage{fancyvrb}       % no-break output
 \usepackage[nogin]{Sweave}  % to not use default width 0.80
 \colorlet{bg}{Aquamarine!18!Honeydew!82!}  % MintCream, Honeydew (svgnames)
 \colorlet{bgw}{PaleGoldenrod!30!Cornsilk!70!}  % MintCream, Honeydew (svgnames)
@@ -17,15 +19,17 @@
 \usepackage[ruled,lined,nofillcomment]{algorithm2e}
 \usepackage{hyperref}
 \usepackage{natbib}
-\addtolength{\oddsidemargin}{-.5in}%
-\addtolength{\textwidth}{1in}%
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{ulem} 
 
 \begin{document}
 
 \SweaveOpts{concordance=TRUE}
 
-\title{Generating multisets with mixed radix incrementing algorithm}
-\author{Inna Gerlovina \thanks{University of California, San Francisco}}
+\title{Combinatorics with Mixed Radix System Algorithm (MIRSA) \\
+       {\Large Generating multisets with mixed radix incrementing}}
+\author[1]{Inna Gerlovina}
+\affil[1]{University of California, San Francisco}
 \date{}  
 \maketitle
 
@@ -73,16 +77,24 @@ The number represented by a sequence of digits $(a_n, a_{n - 1}, \dotsc, a_1, a_
 
 \subsection*{Incrementing}
 
-Incrementing a number in a \textbf{mixed radix} system can follow the same principal as in standard systems: going from right to left, find the first position that can be incremented, add $1$, and set all the positions to the right of that position to $0$: 
-\begin{center}
+Incrementing a number in a \textbf{mixed radix} system can follow the same principal as in standard systems: going from right to left, find the first position that can be incremented, add $1$, and set all the positions to the right of that position to $0$ (Figure \ref{fig:incr1}). The star in the top panel of Figure \ref{fig:incr1} (representing $x$) indicates the position to be incremented. Note that having positions with base $1$ can be useful in some situations. The digital representations of $x$ and $x + 1$ in the same mixed radix numeral system are shown in Figure \ref{fig:incr2} (in decimal system, their values are $7,917,695$ and $7,917,696$).  
+\begin{figure}[!ht] % [!ht] not in 12pt
+%\begin{center}
+  \centering
   \includegraphics[scale = 0.52]{suppl/incr2.pdf} 
-\end{center}
-
-The star in the top figure (representing $x$) indicates the position to be incremented. Note that having positions with base $1$ can be useful in some situations. The digital representations of $x$ and $x + 1$ in the same mixed radix numeral system are below (in decimal system, their values are $7,917,695$ and $7,917,696$): 
-\begin{center}
+  \caption{Incrementing in a mixed radix system: graphical representation.}
+  \label{fig:incr1}
+\end{figure}
+%\end{center}
+\begin{figure}[!h]
+  \centering
+%\begin{center}
   \includegraphics[scale = 0.52]{suppl/incr3b.pdf}
-\end{center}
-\vspace{2mm} 
+  \caption{Incrementing in a mixed radix system: digital representation.}
+  \label{fig:incr2}
+\end{figure}
+%\end{center}
+%\vspace{2mm} 
 
 \subsection*{Constraints}
 
@@ -91,7 +103,8 @@ The incrementing procedure described above is outlined in \cite{knuth2011art} Al
   \item Generate all the collections of non-unique elements of a given size $n$ from a set $A$ of their unique elements (all the multisets $M_l$ such that $|M_l| = n$ and $Supp(M_l) = A$);
   \item Find all the sub-collections of a given collection $B$ with a cardinality constraint $n$ (all the multisets $M_l$ such that $M_l \subseteq B$ and $|M_l| \leqslant n$);
   \item Find all the binary sequences with elements in $\{0, 1\}$ of length $k$ where the number of $1$'s does not exceed $n \leqslant k$; 
-  \item Enumerate all the collections of elements whose sum is equal to a given number $n$.
+  \item Generate all the collections of elements whose sum is equal to a given number $n$.
+  \item Generate all the combinations of $k$ out of $n$ elements.
 \end{itemize}
 
 \section{Algorithm}
@@ -106,25 +119,24 @@ Let $\boldsymbol{b} = (b_1, \dotsc, b_k)$ be radices, $\boldsymbol{m} = (m_1, \d
          an integer $k$,       \\
          a sequence $d_{max} = (d_{max, 1}, \dotsc, d_{max, k})$ of integers, \\
          a function $f_{lim}(S, k, d)$\tcp*{to calculate $m_{lim}$}}
-  \Output{A list $C$ of sequences satisfying $S_{max}$ condition}
+  \Output{A collection $C$ of sequences satisfying $S_{max}$ condition}
   \BlankLine
   $m_{lim} \gets f_{lim}(S_{max}, k, d_{max})$\;
   $S \gets 0$\;
-  $m \gets k$-tuple $(0, ..., 0)$\;
+  $m \gets k$-tuple $(0, \, \dotsc, \, 0)$\;
   $C \gets \{m\}$\tcp*{list of length $1$}
   $i \gets k$\;
   \While{$m \neq m_{lim}$}{
-    \eIf{$m_i = d_{max, i}\; \lor \; S = S_{max}$} {
+    \While{$m_i = d_{max, i}\; \lor \; S = S_{max}$} {
       $S \gets S - m_i$\;
       $m_i \gets 0$\;
       $i \gets i - 1$\;
-    }{
-      $m_i \gets m_i + 1$\;
-      $S \gets S + 1$\;
-      $i \gets k$\;
-      append $\{m\}$ to $C$\;%\tcp*{OR}
-%      $C \gets C \cup \{m\}$\tcp*{note $C \cap \{m\} = \varnothing$} 
     }
+    $m_i \gets m_i + 1$\;
+    $S \gets S + 1$\;
+    $i \gets k$\;
+    append $\{m\}$ to $C$\;%\tcp*{OR}
+%      $C \gets C \cup \{m\}$\tcp*{note $C \cap \{m\} = \varnothing$} 
   }
   \Return{$C$}  
   \caption{Mixed radix incrementing, main version}
@@ -142,12 +154,12 @@ Another possible version could have a constraint $W_{max}$, such that $\sum_{i =
 \begin{algorithm}[H]  \label{alg:mirsaW}
   \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
   
-  \Input{An integer $W_{max}$.}
-  \Output{A collection $C$ of sequences satisfying $W_{max}$ condition.}
+  \Input{An integer $W_{max}$;}
+  \Output{A collection $C$ of sequences satisfying $W_{max}$ condition}
   \BlankLine
   $k \gets W_{max}$\;
   $S \gets 0$\;
-  $m \gets k$-tuple $(0, ..., 0)$\;  
+  $m \gets k$-tuple $(0, \, \dotsc, \, 0)$\;  
   $C \gets \{m\}$\;
   $i \gets k$\;
   \While{$m_1 = 0$}{
@@ -168,7 +180,38 @@ Another possible version could have a constraint $W_{max}$, such that $\sum_{i =
 \end{algorithm}  
 
 \vspace{5mm}
-Using the mixed radix incrementing approach for this particular problem is not necessarily the most efficient way to traverse the combinations, but it has an advantage of being intuitive and easily constructed without any additional knowledge. 
+Using the mixed radix incrementing approach for this particular problem is not necessarily the most efficient way to traverse the combinations, but it has an advantage of being intuitive and easily constructed without any additional knowledge. \\
+
+The many uses of the mixed radix incrementing approach are not limited to generating multiplicities for multisets. Section \ref{sec:ex3} provides an example generating binary sequences, and yet another example (Section \ref{sec:ex5}) concerns all combinations of $k$ distinct elements of a set of cardinality $n$, e.g. as implemented in \texttt{utils::combn()} R function. For this latter example, each combination is represented by a sequence of element indices, and only strictly increasing sequences are considered: for $\boldsymbol{m} = (m_1, \dotsc, m_k)$, $m_i < m_{i + 1}$, $i = 1, \, \dotsc, k - 1$. It follows that $\boldsymbol{d}_{min} = (1, \, \dotsc, \, k)$ and $\boldsymbol{d}_{max} = (n - k + 1, \, \dotsc, \, n)$. \\
+
+\begin{algorithm}[H] \label{alg:mirsaS}
+  \SetKwInOut{Input}{Input}\SetKwInOut{Output}{Output}
+
+  \Input{An integer $n$, \\
+         an integer $k$;}
+  \Output{A collection $C$ of strictly increasing sequences ($m_i < m_j$ if $i < j$)}
+  \BlankLine
+  $d_{max} \gets k$-tuple $(n - k + 1, \, \dotsc, \, n)$\;
+  $m \gets k$-tuple $(1, \, \dotsc, \, k)$\;
+  $C \gets \{m\}$\tcp*{list of length $1$}
+  $i \gets k$\;
+  \While{$m_1 \neq d_{max, 1}$}{
+    \While{$m_i = d_{max, i}$}{
+      $i \gets i - 1$\;
+    }
+    $m_i \gets m_i + 1$\;
+    \While{$i < k$}{
+      $i \gets i + 1$\;
+      $m_i \gets m_{i - 1} + 1$\;
+    }
+    append $\{m\}$ to $C$\;
+  }
+  \Return{$C$}  
+  \caption{Mixed radix incrementing, sorted "digits" version}
+\end{algorithm}  
+
+\vspace{5mm}
+The incrementing approach can also be used to generate permutations, although not as directly. Starting with a sequence $(1, \, \dotsc, \, n)$ and ending with $(n, \, \dotsc, \, 1)$, we would move through the positions (beginning with the last) in each sequence and increment the digit at the position that does not satisfy the decreasing order. The digits at the subsequent positions would be placed in the increasing order (see an example in Section \ref{sec:ex5}). 
 
 \section{Example Problems}
 
@@ -233,7 +276,7 @@ choose(n - 1, k - 1)
 mcoef(k - 1, n - k + 1)
 @
 
-The algorithm outputs multisets of cardinality less than or equal to a given number, so to get the multisets of the given cardinality only, we run the algorithm with one position removed ($k' = k - 1$) and set $d_{min, i} = 1 \;\; \forall \, i$. Note that for this problem, the base is the same for all the positions and is equal to $n - k + 1$. The output is a matrix, in which each multiset $M_l$ is represented by a column with multiplicities of elements of $A$ (the third column in Table \ref{tab:ex1}). Below we generate multisets for $n = 8$ and $k = 4$; the last row is added after running the algorithm to bring the cardinality of each multiset to $n$: $\sum_{i = 1}^k m_i = n$.
+The algorithm outputs multisets of cardinality less than or equal to a given number, so to get the multisets of the given cardinality only, we run the algorithm with one position removed ($k' = k - 1$) and set $d_{min, i} = 1 \;\; \forall \, i$. Note that for this problem, the base is the same for all the positions and is equal to $n - k + 1$. The output is a matrix, in which each multiset $M_l$ is represented by a column with multiplicities of elements of $A$ (the third column in Table \ref{tab:ex1}). Below we generate multisets for $n = 8$ and $k = 4$; the last row is added after running the algorithm to bring the cardinality of each multiset to $n$: $\sum_{i = 1}^k m_i = n$. 
 
 <<>>=
 n <- 8
@@ -241,6 +284,9 @@ k <- 4
 # Function mirsa() (MIxed Radix System Algorithm) runs the main version 
 # of the algorithm 
 vmat <- mirsa(rep(n - k, k - 1), summax = n - k) + 1
+@
+\pagebreak % to keep output on one page
+<<>>=
 rbind(vmat, n - colSums(vmat))
 @
 
@@ -283,11 +329,14 @@ First, consider the case when $n = |B|$, which means it's a simple case of incre
 <<>>=
 # multiplicities for B
 mB <- c(2, 4, 1)
+@
+\pagebreak % to keep output on one page
+<<>>=
 mirsa(mB)                # no constraints: n = 7
 mirsa(mB, summax = 5)    # cardinality constraint: n = 5 
 @
 
-\subsection{Binary sequences with a bound on the sum}   
+\subsection{Binary sequences with a bound on the sum} \label{sec:ex3}  
 
 Produce all binary sequences $(a_1, \dotsc, a_k)$ of length $k$ and $\sum_{i = 1}^k a_i \leqslant n$ (Table \ref{tab:ex3}). The solution of course is equivalent to generating combinations of $l$ out of $k$ elements, $l \leqslant n$ with the corresponding number of such sequences equal to $\binom{k}{0} + \binom{k}{1} + \dotsb + \binom{k}{n}$. The mixed radix incrementing algorithm, however, might provide a more efficient solution, which in this case is as simple as incrementing in binary numeral system but with an optional constraint on the sum of the digits. \\ 
 
@@ -407,9 +456,58 @@ s <- 8
 mirsaW(s, eq = TRUE)  
 @
 
+\subsection{Combinations of $k$ out of $n$ elements} \label{sec:ex5}
+
+Generate all subsets $B_l$, $|B_l| = k \;\; \forall \, l$ of a given set $A$, $|A| = n$, $k \leqslant n$. This is a standard problem; the number of such subsets is ${n \choose k}$. First, we attach indices ($1, \, \dotsc, n$) to all the elements in $A$; then each subset will be represented by a sequence of these indices, each sequence of length $k$ and strictly increasing (Table \ref{tab:ex5}). Then we use Algorithm \ref{alg:mirsaS} to generate these sequences. \\
+
+\begin{table}
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+    \hline
+    \rowcolor{bg}
+      \multicolumn{20}{|c|}{sequence} \\
+    \rowcolor{bg}
+      \multicolumn{1}{|c}{$1$}  & \multicolumn{1}{c}{$2$} & 
+      \multicolumn{1}{ c}{$3$}  & \multicolumn{1}{c}{$4$} & 
+      \multicolumn{1}{ c}{$5$}  & \multicolumn{1}{c}{$6$} &
+      \multicolumn{1}{ c}{$7$}  & \multicolumn{1}{c}{$8$} & 
+      \multicolumn{1}{ c}{$9$}  & \multicolumn{1}{c}{$10$} & 
+      \multicolumn{1}{ c}{$11$} & \multicolumn{1}{c}{$12$} &
+      \multicolumn{1}{ c}{$13$} & \multicolumn{1}{c}{$14$} & 
+      \multicolumn{1}{ c}{$15$} & \multicolumn{1}{c}{$16$} & 
+      \multicolumn{1}{ c}{$17$} & \multicolumn{1}{c}{$18$} &      
+      \multicolumn{1}{ c}{$19$} & $20$ \\
+     \hline  
+    $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $2$ & $2$ & $2$ 
+    & $2$ & $2$ & $2$ & $3$ & $3$ & $3$ & $4$ \\
+    $2$ & $2$ & $2$ & $2$ & $3$ & $3$ & $3$ & $4$ & $4$ & $5$ & $3$ & $3$ & $3$ 
+    & $4$ & $4$ & $5$ & $4$ & $4$ & $5$ & $5$ \\
+    $3$ & $4$ & $5$ & $6$ & $4$ & $5$ & $6$ & $5$ & $6$ & $6$ & $4$ & $5$ & $6$ 
+    & $5$ & $6$ & $6$ & $5$ & $6$ & $6$ & $6$ \\
+    \hline
+  \end{tabular}
+  \caption{Strictly increasing sequences of length $3$ with elements in $\{1, \, \dotsc, \, 6\}$.}
+  \label{tab:ex5}
+\end{table}  
+
+In the example below we generate indices for all combinations of $5$ out of $7$ elements: 
+
+<<>>=
+n <- 7
+k <- 5
+mirsaS(n, k)
+@
+
+An incrementing approach for generating permutations is illustrated with $n = 4$:
+
+<<>>=
+n <- 4
+perm(n)
+@
+
 \section{Conclusion}
 
-We showed just a few examples to demonstrate the utility and efficiency of the mixed radix incrementing approach. The algorithm is used for implementation of Dcifer (\cite{gerlovina2022dcifer}), a method for calculating genetic distance that estimates relatedness between polyclonal infections (the first three examples represent combinatorial problems that arise in Dcifer likelihood calculation). The problem in \ref{sec:ex4} appears, for example, in calculation of higher-order statistics. When a problem can be framed in terms of generating all the possible multisets with some prescribed conditions, it may be solved with this unified approach and algorithm versions tailored to accommodate various kinds of constraints. 
+We showed just a few examples to demonstrate the utility and efficiency of the mixed radix incrementing approach. The algorithm is used for implementation of Dcifer (\cite{gerlovina2022dcifer}), a method for calculating genetic distance that estimates relatedness between polyclonal infections (the first three examples represent combinatorial problems that arise in Dcifer likelihood calculation). The problem in \ref{sec:ex4} appears, for example, in calculation of higher-order statistics. Section \ref{sec:ex5} illustrates the use of the algorithm for generating standard "$k$ out of $n$" combinations. When a problem can be framed in terms of generating all the possible multisets with some prescribed conditions, it may be solved with this unified approach and algorithm versions tailored to accommodate various kinds of constraints. 
 
 \bibliographystyle{plainnat}
 %\bibliographystyle{unsrt}
