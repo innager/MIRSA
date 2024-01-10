@@ -13,7 +13,7 @@ If a combination is represented by a multiset, all combinations that need to be 
 To account for all the combinations, it might be useful to impose some kind of ordering on them and, consequently, a rule prescribing how to move from one combination to the next. Ultimately, finding a rule that would allow one to efficiently traverse all the necessary combinations is the problem to solve. Since a combination can be represented by a single number, moving from that combination to the next can be as simple as incrementing or decrementing that number or, if there are constraints (e.g. a bound on a sum of the digits of the number), moving to the closest "allowed" number. Because different representations of a combination described above are bijective, the "next" number uniquely defines a combination in the collection. A diagram below shows how the chain of these representations can be used to move from a given combination to the next one.
 
 <p align="center">
-<img src="suppl/diagram1a.png" alt="" width=700>
+<img src="suppl/diagram1a.png" alt="" width=720>
 </p>
 
 ### Positional numeral systems
@@ -51,7 +51,7 @@ The incrementing procedure described above is outlined in \cite{knuth2011art} Al
 
 </br>
 
-#### <span style="color:gray">For various versions of the algorithm and example problems, see __mirsa.pdf__</span>. 
+#### For various versions of the algorithm and example problems, see mirsa.pdf. 
 
 
 
