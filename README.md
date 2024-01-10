@@ -2,7 +2,7 @@
 <p align="center">
 # Combinatorics with MIRSA 
 ## Generating multisets with mixed radix incrementing algorithm
-<p align="center">
+</p>
 
 </br>
 
